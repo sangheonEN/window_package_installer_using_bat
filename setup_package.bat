@@ -11,10 +11,9 @@ if %errorlevel% neq 0 (
 
 setlocal
 
+:: 공통 경로 변수 설정
 set BASE_PATH=%~dp0
 set INSTALLER_PATH=%BASE_PATH%_install_package
-:: 공통 경로 변수 설정
-set BASE_PATH=D:\package_install_dev\_install_package
 
 :: NVIDIA 드라이버 설치
 echo NVIDIA 드라이버를 설치합니다...
