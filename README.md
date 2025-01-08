@@ -15,3 +15,5 @@ EX) 패키지 파일명 수정
 :: NVIDIA 드라이버 설치
 echo NVIDIA 드라이버를 설치합니다...
 start /wait "" "%INSTALLER_PATH%\{수정필요}" /s
+
+꼭 관리자 권한으로 실행하십쇼!
