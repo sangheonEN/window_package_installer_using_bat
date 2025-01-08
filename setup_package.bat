@@ -25,7 +25,6 @@ echo ----------------------------------------
 echo NVIDIA 드라이버 확인:
 nvidia-smi
 
-
 :: CUDA 설치
 echo CUDA v12.1을 설치합니다...
 start /wait "" "%INSTALLER_PATH%\cuda_12.1.0_531.14_windows.exe" -s
@@ -63,16 +62,6 @@ for /f "tokens=3" %%A in ('findstr /R /C:"#define CUDNN_PATCHLEVEL" %CUDNN_HEADE
 echo cuDNN Version: %CUDNN_MAJOR%.%CUDNN_MINOR%.%CUDNN_PATCHLEVEL%
 
 
-:: Python 설치
-echo Python 3.11.5를 설치합니다...
-start /wait "" "%INSTALLER_PATH%\python-3.11.5-amd64.exe" /quiet InstallAllUsers=1 PrependPath=1
-
-:: Python 설치 확인
-echo ----------------------------------------
-echo Python 버전 확인:
-python --version
-
-
 :: FFmpeg 설치
 echo FFmpeg를 설치합니다...
 mkdir "C:\ffmpeg"
@@ -80,7 +69,26 @@ xcopy "%INSTALLER_PATH%\ffmpeg" "C:\ffmpeg" /E /H /C /I /Y
 
 :: FFmpeg 환경 변수 설정
 echo 시스템 환경 변수에 FFmpeg 경로를 추가합니다...
-setx PATH "%PATH%;C:\ffmpeg\bin"
+
+@REM back up the system parameters Path
+set BACKUPPATH=%BASE_PATH%system_user_path_backup.txt
+reg query "HKCU\Environment" /v PATH > %BACKUPPATH%
+
+@REM Extract user Path list from system_user_path_backup.txt
+for /f "skip=2 tokens=2,* delims= " %%A in (%BACKUPPATH%) do (
+    set "USER_PATH=%%B"
+)
+
+@REM set CHECK_PATH for compare with %USER_PATH%. USER_PATH에서 C:\ffmpeg\bin; 이 경로를 뺀 모든 사용자 경로 집합
+set CHECK_PATH=%USER_PATH:C:\ffmpeg\bin;=%
+
+@REM "%CHECK_PATH%"=="%USER_PATH%"이면, C:\ffmpeg\bin; 이 경로가 빠졌는데 같은거니 경로가 포함되지 않음 
+if "%CHECK_PATH%"=="%USER_PATH%" (
+    echo C:\ffmpeg\bin 경로가 포함되어 있지 않습니다. 경로 추가!
+    setx PATH "%USER_PATH%C:\ffmpeg\bin"
+) else (
+    echo C:\ffmpeg\bin 경로가 포함되어 있습니다. 작업 없이 PASS
+)
 
 echo ----------------------------------------
 echo FFmpeg 설치 확인:
